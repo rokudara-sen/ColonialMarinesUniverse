@@ -1,0 +1,194 @@
+<Document>
+  # Voice Procedure
+
+  Radios carry your voice; procedure carries your meaning. Every net is shared, every second of air time is contested, and the enemy may be copying every word. Proper voice procedure keeps transmissions short, unambiguous and anonymous.
+
+  The golden rules:
+
+  - [bold]Listen before you transmit.[/bold] Never step on traffic in progress.
+  - [bold]Think, then key up.[/bold] Know what you will say before you say it.
+  - [bold]Callsigns only.[/bold] Never names, never ranks. The net does not know who you are — keep it that way.
+  - [bold]Keep it short.[/bold] If it takes longer than about ten seconds, split it with BREAK.
+  - [bold]Acknowledge everything.[/bold] An unacknowledged order does not exist.
+
+  ## The Basic Call
+
+  Every transmission follows the same skeleton — [bold]them first, you second[/bold]:
+
+  [color=#3FCF8E]HAVOC 6, this is ALPHA ROMEO — message — over.[/color]
+
+  You address the station you are calling, identify yourself with THIS IS, pass your traffic, and hand the net back with OVER. The reply mirrors it:
+
+  [color=#3FCF8E]ALPHA ROMEO, this is HAVOC 6 — send it, over.[/color]
+
+  Once both stations are established on the net, you may drop to abbreviated callsigns ("ALPHA ROMEO, HAVOC 6, send it, over").
+
+  ## Prowords
+
+  Prowords are standard words with fixed meanings. They exist so nobody has to guess.
+
+  <Table Columns="2" MinForcedColumnWidth="110">
+    <ColorBox Color="#263238">
+      <Box Margin="4">[bold]Proword[/bold]</Box>
+    </ColorBox>
+    <ColorBox Color="#263238">
+      <Box Margin="4">[bold]Meaning[/bold]</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">THIS IS</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">The callsign that follows is the transmitting station.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">OVER</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">My transmission is finished; I expect a reply.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">OUT</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">My transmission is finished; no reply expected. Never "over and out".</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">ROGER</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">I received and understood your last transmission. Says nothing about compliance.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">WILCO</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">Understood and [bold]will comply[/bold]. Never "roger wilco" — WILCO includes ROGER.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">SAY AGAIN</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">Repeat your last transmission. [bold]Never say "repeat"[/bold] — on a fire support net REPEAT means "fire the last mission again".</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">BREAK</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">Pause between sections of a long message, releasing the net briefly.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">STAND BY / WAIT OUT</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">I must pause; I will call you back. Do not tie up the net waiting.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">HOW COPY</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">Confirm you received my message. Answer GOOD COPY or SOLID COPY.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">RADIO CHECK</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">Report my signal strength and readability. Answer LIMA CHARLIE (loud and clear) or describe the problem ("broken and distorted").</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">ACTUAL</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">The commander in person, not their radio operator. "ALPHA 6 ACTUAL" is the squad leader themself.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">INTERROGATIVE</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">What follows is a question.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">BE ADVISED</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">What follows is information, no action required.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">CORRECTION</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">I made an error; the corrected version follows.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">DISREGARD</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">Ignore my last transmission entirely.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">ALL STATIONS</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">Net call — everyone on the net copies. Reserved for commanders and net control.</Box>
+    </ColorBox>
+  </Table>
+
+  ## Worked Examples
+
+  [bold]Radio check:[/bold]
+
+  [color=#3FCF8E]"HAVOC ROMEO, this is ALPHA ROMEO, radio check, over."[/color]
+  [color=#3FCF8E]"ALPHA ROMEO, this is HAVOC ROMEO, Lima Charlie, how me? Over."[/color]
+  [color=#3FCF8E]"Lima Charlie, out."[/color]
+
+  [bold]Contact report[/bold] — what, where, how many, what you are doing about it:
+
+  [color=#3FCF8E]"HAVOC 6, this is ALPHA 6, contact! Infantry, squad strength, east treeline grid two-four-five, engaging, over."[/color]
+  [color=#3FCF8E]"ALPHA 6, HAVOC 6, roger. BRAVO is moving to your flank, hold your line, over."[/color]
+  [color=#3FCF8E]"HAVOC 6, ALPHA 6, wilco, out."[/color]
+
+  [bold]Fire support request[/bold] — warn the net first, send the details when cleared:
+
+  [color=#3FCF8E]"HAVOC OPS, this is ALPHA ROMEO, fire mission, over."[/color]
+  [color=#3FCF8E]"ALPHA ROMEO, HAVOC OPS, send it, over."[/color]
+  [color=#3FCF8E]"Fire mission: enemy machine gun position, north ridge by the comms tower, danger close two-five-zero meters east of our smoke, request suppression, over."[/color]
+  [color=#3FCF8E]"ALPHA ROMEO, HAVOC OPS, roger, rounds out in three-zero seconds, stand by for splash, over."[/color]
+  [color=#3FCF8E]"HAVOC OPS, ALPHA ROMEO, splash observed, target suppressed, end of mission, out."[/color]
+
+  [bold]Casualty evacuation:[/bold]
+
+  [color=#3FCF8E]"HAVOC ROMEO, this is BRAVO ROMEO, casevac request, over."[/color]
+  [color=#3FCF8E]"BRAVO ROMEO, HAVOC ROMEO, send it, over."[/color]
+  [color=#3FCF8E]"Two casualties, one urgent surgical, one walking wounded. Pickup at the LZ south of the bridge, LZ is cold, marked with green smoke, over."[/color]
+  [color=#3FCF8E]"BRAVO ROMEO, HAVOC ROMEO, good copy, bird inbound, five mikes, out."[/color]
+
+  [bold]Commander taking the handset:[/bold]
+
+  [color=#3FCF8E]"HAVOC 6, this is ALPHA 6 ACTUAL, interrogative: do we have clearance to push past phase line DODGE? Over."[/color]
+
+  ## Bad Traffic
+
+  What not to sound like — every line below leaks information, wastes air time or invites confusion:
+
+  - [color=#C46A6A]"Hey uh, command, this is Private Miller, we're kinda getting shot at over here?"[/color] — name, rank, no callsigns, no location, no strength.
+  - [color=#C46A6A]"Can you repeat that?"[/color] — you may have just re-ordered an artillery strike.
+  - [color=#C46A6A]Thirty seconds of unbroken monologue.[/color] — nobody can acknowledge, nobody else can report contact.
+  - [color=#C46A6A]"Roger over and out, wilco."[/color] — pick one, they contradict each other.
+
+  Brevity is armor. The enemy direction-finds long transmissions and reads careless ones — say it clean, say it once, get off the net.
+</Document>

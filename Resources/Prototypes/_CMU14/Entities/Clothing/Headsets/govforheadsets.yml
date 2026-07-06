@@ -136,9 +136,8 @@
   components:
   - type: ContainerFill
     containers:
-      key_slots:
+      key_slots: # no command key — the squad's uplink to command is the RTO's manpack handset
       - AU14EncryptionKeyGovfor
-      - AU14EncryptionKeyGovforCommandOnly
       - AU14EncryptionKeyGovforJTAC
 
 - type: entity
