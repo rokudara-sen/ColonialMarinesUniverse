@@ -316,12 +316,4 @@ public sealed partial class AU14CallsignSystem : EntitySystem
         args.VoiceName = ent.Comp.Callsign;
     }
 
-    // Temporary stubs — replaced by AU14CallsignSystem.Console.cs in the follow-up PR.
-    private void InitializeConsole()
-    {
-    }
-
-    private void PushConsoleStates(string faction)
-    {
-    }
 }
