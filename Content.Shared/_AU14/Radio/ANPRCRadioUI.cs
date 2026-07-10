@@ -212,7 +212,6 @@ public sealed class ANPRCRadioState(
     public readonly bool Planted = planted;
     public readonly string Callsign = callsign;
 
-    /// <summary>The wearer's assigned callsign; used on air when no station override is set.</summary>
     public readonly string WearerCallsign = wearerCallsign;
 
     public readonly List<string> CallsignPresets = callsignPresets;

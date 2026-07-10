@@ -20,13 +20,10 @@ public sealed class AU14CallsignConsoleRow(NetEntity member, string callsign, st
 [Serializable, NetSerializable]
 public sealed class AU14CallsignConsoleElement(NetEntity? squad, string label, string word, List<AU14CallsignConsoleRow> rows)
 {
-    /// <summary>Squad entity backing this element; null = command element.</summary>
     public readonly NetEntity? Squad = squad;
 
-    /// <summary>Display label, e.g. "COMMAND" or "ALPHA SQUAD".</summary>
     public readonly string Label = label;
 
-    /// <summary>The element's callsign word, e.g. "HAVOC".</summary>
     public readonly string Word = word;
 
     public readonly List<AU14CallsignConsoleRow> Rows = rows;

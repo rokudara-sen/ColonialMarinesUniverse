@@ -47,9 +47,8 @@ public sealed partial class RadioChannelPrototype : IPrototype
     public string Faction = string.Empty;
 
     /// <summary>
-    /// AU14: combat nets require ANPRC relay coverage (a worn/planted manpack
-    /// or a comms array) on the speaker's and listener's map. Ungated channels
-    /// keep stock radio behavior.
+    /// AU14: combat nets require ANPRC relay coverage on the speaker's and listener's map. Ungated channels
+    /// keep stock radio behavior
     /// </summary>
     [DataField]
     public bool AnchorGated;

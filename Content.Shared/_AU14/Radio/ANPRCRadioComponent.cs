@@ -59,22 +59,15 @@ public sealed partial class ANPRCRadioComponent : Component
 
     public const int MaxCallsignLength = 16;
 
-    /// <summary>Server-side: mob currently holding the corded handset, if any.</summary>
     public EntityUid? HandsetUser;
 
-    /// <summary>Prototype of the physical handset spawned into the pack.</summary>
     [DataField]
     public EntProtoId HandsetId = "AU14ANPRCHandset";
 
     public const string HandsetContainerId = "anprc_handset";
 
-    /// <summary>Server-side: the pack's physical handset item.</summary>
     public EntityUid? Handset;
 
-    /// <summary>
-    /// True only while this radio is putting a transmission on the air, so the
-    /// speaker-name transform knows to swap the wearer's name for the callsign.
-    /// </summary>
     public bool NameMaskActive;
 
     public const int MaxLabelLength = 8;
