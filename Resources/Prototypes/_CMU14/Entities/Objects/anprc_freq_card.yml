@@ -2,7 +2,7 @@
   parent: CMPaperWritten
   id: ANPRCFreqCard
   name: AN/PRC-117G frequency assignment card
-  description: A laminated frequency assignment card issued with each AN/PRC-117G. Read it for the current net-to-frequency assignments.
+  description: A laminated card of signal operating instructions, sized to tape to a forearm. The lamination has seen better days.
   components:
   - type: Item
     size: Small

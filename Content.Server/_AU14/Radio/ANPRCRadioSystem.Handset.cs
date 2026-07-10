@@ -85,6 +85,7 @@ public sealed partial class ANPRCRadioSystem
 
         ent.Comp.Handset = handset;
         Comp<ANPRCHandsetComponent>(handset.Value).Radio = ent;
+        Dirty(ent);
     }
 
     private void OnHandsetEquippedHand(Entity<ANPRCHandsetComponent> ent, ref GotEquippedHandEvent args)
@@ -221,6 +222,7 @@ public sealed partial class ANPRCRadioSystem
 
             pack.Comp.Handset = spawned;
             Comp<ANPRCHandsetComponent>(spawned.Value).Radio = pack.Owner;
+            Dirty(pack);
             item = spawned.Value;
         }
 

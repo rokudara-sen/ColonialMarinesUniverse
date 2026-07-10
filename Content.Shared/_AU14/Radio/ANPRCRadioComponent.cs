@@ -66,6 +66,7 @@ public sealed partial class ANPRCRadioComponent : Component
 
     public const string HandsetContainerId = "anprc_handset";
 
+    [AutoNetworkedField]
     public EntityUid? Handset;
 
     public bool NameMaskActive;

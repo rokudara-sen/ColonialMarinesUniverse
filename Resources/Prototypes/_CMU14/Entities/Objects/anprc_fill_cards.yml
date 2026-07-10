@@ -2,7 +2,7 @@
   abstract: true
   id: ANPRCFillCard
   name: COMSEC fill card
-  description: A physical cryptographic fill card for the AN/PRC-117G radio. Insert into the radio's fill slot to load COMSEC. Zeroize or remove to eject.
+  description: A hardened cryptographic fill card for the AN/PRC-117G radio. Worth more than the radio it slots into.
   parent: BaseItem
   components:
   - type: Sprite
@@ -17,9 +17,8 @@
   id: ANPRCFillCardGOVFOR
   name: GOVFOR COMSEC fill card
   description: >-
-    A GOVFOR KY-99A cryptographic fill card.
-    Insert into a GOVFOR AN/PRC-117G to load COMSEC fill.
-    Transmissions on CT mode are unreadable without a matching card.
+    A GOVFOR KY-99A cryptographic fill card. Signal section property —
+    loss must be reported immediately, and nobody enjoys what happens next.
   components:
   - type: ANPRCFillCard
     faction: govfor
@@ -30,9 +29,8 @@
   id: ANPRCFillCardOPFOR
   name: OPFOR COMSEC fill card
   description: >-
-    An OPFOR KY-58 cryptographic fill card.
-    Insert into an OPFOR AN/PRC-117G to load COMSEC fill.
-    Transmissions on CT mode are unreadable without a matching card.
+    An OPFOR KY-58 cryptographic fill card. The serial number has been
+    stamped over three times.
   components:
   - type: ANPRCFillCard
     faction: opfor
@@ -43,9 +41,8 @@
   id: ANPRCFillCardCLF
   name: CLF COMSEC fill card
   description: >-
-    A CLF KY-38 cryptographic fill card.
-    Insert into a CLF AN/PRC-117G to load COMSEC fill.
-    Transmissions on CT mode are unreadable without a matching card.
+    A CLF KY-38 cryptographic fill card, scuffed and lovingly maintained.
+    Harder to replace than the radio, and everyone knows it.
   components:
   - type: ANPRCFillCard
     faction: clf

@@ -2,10 +2,9 @@
   id: ANPRC117GRadio
   name: AN/PRC-117G
   description: >-
-    A ruggedized multiband tactical radio used by Radio Telephone Operators.
-    Program up to four preset nets with the panel, then transmit with :r.
-    While worn and powered, it relays headset traffic for everyone nearby,
-    bridging squad nets to command without a communications tower.
+    A ruggedized multiband manpack radio, the lifeline between a platoon in
+    the field and its command net. Heavy, over-engineered, and utterly
+    indispensable. Commonly carried by Radio Telephone Operators.
   parent: BaseItem
   components:
   - type: Sprite
@@ -128,8 +127,8 @@
   id: AU14ANPRCHandset
   name: AN/PRC-117G handset
   description: >-
-    A corded handset wired into an AN/PRC-117G manpack. Hold it and transmit
-    with :r to talk on the pack's active net — no radio training required.
+    A corded handset wired into an AN/PRC-117G manpack. The cord never
+    stretches quite as far as you need it to.
   components:
   - type: Sprite
     sprite: _RMC14/Objects/phone.rsi
