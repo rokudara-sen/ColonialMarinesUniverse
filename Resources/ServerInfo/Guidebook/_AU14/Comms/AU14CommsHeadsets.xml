@@ -1,9 +1,7 @@
 <Document>
   # Field Headsets
 
-  Headsets are the standard radio for ground forces.
-
-  Every soldier gets one at issue. Keep it worn and know which radio keys it has.
+  Field headsets are the standard personal radios issued to ground forces. They provide access to assigned faction nets and, on supported models, one tunable direct frequency.
 
   <Box>
     <GuideEntityEmbed Entity="AU14HeadsetGovforMarineFTL" Caption="Squad Headset"/>
@@ -12,114 +10,138 @@
 
   ## Named Nets
 
-  Use [color=#3FCF8E]:h[/color] to talk on your headset default net.
+  Use [color=#a4885c]:h[/color] to transmit on the headset's default net.
 
-  Most headsets also carry other keyed nets. Examine your headset to see which nets it has and which letter each one uses.
+  Some headsets contain additional keyed nets. Examine the headset to view its available nets and chat prefixes.
 
-  Examples:
-  - [color=#3FCF8E]:v[/color] for command, if your headset has command.
-  - [color=#3FCF8E]:a[/color] for Alpha, if your headset has Alpha.
+  For example:
 
-  Named nets are secured by keys loaded into the headset.
+  - [color=#a4885c]:v[/color] transmits on command when the headset contains the command key.
+  - [color=#a4885c]:a[/color] transmits on Alpha when the headset contains the Alpha key.
 
-  If your headset does not have the key, you cannot hear or speak on that net.
+  Named faction nets are secured by keys installed in the headset. A headset cannot transmit on or receive a named net without its matching key.
 
-  Do not remove keys unless ordered.
+  ## Net Coverage
 
-  ## Range and Relays
+  Combat nets require coverage from a radio relay or fixed communications infrastructure.
 
-  Combat nets — squad, command, intel and JTAC — only exist where something anchors them. Without coverage they are [bold]dead air[/bold], not unlimited:
+  Coverage can be provided by:
 
-  - A powered [textlink="AN/PRC-117G" link="AU14CommsANPRC"] worn by a [bold]trained operator[/bold] (RTO, command, or the platoon sergeant) — on anyone else's back the pack relays nothing.
-  - A planted retrans station.
-  - A fixed [bold]comms array[/bold] (shipboard, powered) or [bold]antenna mast[/bold] (command post). Destroy the enemy's array and their base goes deaf.
+  - A powered [textlink="AN/PRC-117G" link="AU14CommsANPRC"] worn by a trained operator.
+  - A deployed retransmission station.
+  - A powered shipboard communications array.
+  - A command-post antenna mast.
 
-  Support nets such as MILP and colony channels are not relay-gated and work everywhere.
+  A worn AN/PRC does not relay while carried by an untrained wearer.
 
-  Stock relay range:
+  Support nets, including MILP and colony channels, are not relay-gated and remain available without an anchor.
+
+  ### Standard relay range
 
   <Table Columns="2" MinForcedColumnWidth="120">
     <ColorBox Color="#263238">
-      <Box Margin="4">[bold]Distance from Radio[/bold]</Box>
+      <Box Margin="4">[bold]Distance from relay[/bold]</Box>
     </ColorBox>
     <ColorBox Color="#263238">
       <Box Margin="4">[bold]Signal[/bold]</Box>
     </ColorBox>
 
     <ColorBox>
-      <Box Margin="4">0 to 30 tiles</Box>
+      <Box Margin="4">0–30 tiles</Box>
     </ColorBox>
     <ColorBox>
-      <Box Margin="4">Clean send and receive.</Box>
-    </ColorBox>
-
-    <ColorBox>
-      <Box Margin="4">30 to 45 tiles</Box>
-    </ColorBox>
-    <ColorBox>
-      <Box Margin="4">Light garble.</Box>
+      <Box Margin="4">Clear transmission and reception.</Box>
     </ColorBox>
 
     <ColorBox>
-      <Box Margin="4">Past 45 tiles</Box>
+      <Box Margin="4">30–45 tiles</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">Lightly degraded.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">Beyond 45 tiles</Box>
     </ColorBox>
     <ColorBox>
       <Box Margin="4">No relay signal.</Box>
     </ColorBox>
   </Table>
 
-  These figures assume normal transmit power and a stock whip antenna.
+  These ranges assume standard transmit power and a whip antenna.
 
-  Transmit power and antenna change the relay range. A stationary mast reaches much further. Low power reaches less. CP antenna masts cover roughly 75 tiles and shipboard comms arrays cover the whole ship.
+  Relay range is affected by the radio's transmit power and antenna:
 
-  If nothing anchors your net on the map, the net is dead until coverage is restored.
+  - Low transmit power reduces range.
+  - High transmit power increases range.
+  - A stationary mast antenna provides greater range than a whip antenna.
+  - Command-post antenna masts cover approximately 75 tiles.
+  - Shipboard communications arrays cover the connected ship.
 
-  Stay near the RTO if you need reliable comms.
+  If no relay or fixed anchor is available, relay-gated nets cannot be used in that area.
 
-  ## Talking Up the Chain
+  ## Using the Command Net
 
-  Squad leader headsets carry the squad net and JTAC — [bold]not[/bold] the command net. The squad's voice to command is the RTO's manpack: stand next to the RTO (or a planted pack), alt-click them and [bold]Take Handset[/bold], then transmit with [color=#3FCF8E]:r[/color]. The cord reaches about 2 tiles — walk away and it yanks out of your hand.
+  Squad leader headsets contain the squad and JTAC nets, but not the command net.
 
-  You go on air under your own callsign, so command hears "ALPHA 6", not the RTO. This is the intended way for a squad leader to request fires, report to command, or take orders — keep your RTO alive and keep them close.
+  A squad leader can use an RTO's AN/PRC handset to communicate on command:
+
+  - Stand near the RTO or a deployed radio.
+  - Alt-click the wearer or radio.
+  - Select [bold]Take Handset[/bold].
+  - Transmit with [color=#a4885c]:r[/color].
+
+  The handset reaches approximately two tiles and disconnects when the user moves out of range.
+
+  Handset transmissions use the handset user's own callsign rather than the radio operator's callsign.
 
   ## Jamming
 
-  Enemy jammers affect headsets in two ways.
+  Enemy jammers affect headset traffic.
 
-  If you are inside a jammer field, your outgoing headset transmissions are blocked.
+  While the wearer is inside a jammer field:
 
-  Move out of the field before calling for help.
+  - Outgoing headset transmissions are blocked.
+  - Incoming traffic may become degraded.
+  - Stronger nearby jamming causes more severe degradation.
 
-  Incoming traffic near a jammer becomes garbled. The closer you are to the jammer, the worse it gets.
+  Direct-frequency traffic is affected in the same way.
 
-  Direct frequencies degrade the same way.
-
-  The AN/PRC can keep transmitting from inside a jammer field when using FH mode. Normal headsets cannot.
+  The AN/PRC can continue transmitting from inside a jammer field while using FH mode. Standard headsets cannot.
 
   ## Direct Frequency Tuning
 
-  Some headsets can tune one extra direct frequency.
+  Some headsets can store one additional direct frequency.
 
-  Use [color=#3FCF8E]:x[/color] to transmit on it.
+  Use [color=#a4885c]:x[/color] to transmit on the tuned frequency.
 
-  Direct frequency traffic:
-  - Does not need a tower.
-  - Does not need a named net.
-  - Does not need an encryption key.
-  - Works with anyone tuned to the same number.
+  Direct-frequency traffic:
 
-  To tune:
+  - Does not use a named net.
+  - Does not require a headset encryption key.
+  - Does not require fixed communications infrastructure.
+  - Can be received by any compatible radio tuned to the same frequency.
+
+  To tune the headset:
+
   - Right-click the headset.
   - Select [bold]Tune Frequency[/bold].
-  - Enter a frequency from [color=#3FCF8E]30.000[/color] to [color=#3FCF8E]87.999[/color] MHz.
+  - Enter a frequency between [color=#a4885c]30.000[/color] and [color=#a4885c]87.999[/color] MHz.
 
-  Both formats work:
-  - [color=#3FCF8E]30750[/color]
-  - [color=#3FCF8E]30.750[/color]
+  Frequencies may be entered with or without a decimal point.
 
-  The headset must be worn in your ears to transmit or receive.
+  For example:
+
+  - [color=#a4885c]30750[/color]
+  - [color=#a4885c]30.750[/color]
+
+  Both values select the same frequency.
+
+  The headset must be worn in the ears slot to transmit or receive.
 
   ## Direct Frequency Range
+
+  Without an AN/PRC relay:
 
   <Table Columns="2" MinForcedColumnWidth="120">
     <ColorBox Color="#263238">
@@ -130,87 +152,92 @@
     </ColorBox>
 
     <ColorBox>
-      <Box Margin="4">0 to 30 tiles</Box>
+      <Box Margin="4">0–30 tiles</Box>
     </ColorBox>
     <ColorBox>
-      <Box Margin="4">Clean.</Box>
-    </ColorBox>
-
-    <ColorBox>
-      <Box Margin="4">30 to 50 tiles</Box>
-    </ColorBox>
-    <ColorBox>
-      <Box Margin="4">Light garble.</Box>
+      <Box Margin="4">Clear.</Box>
     </ColorBox>
 
     <ColorBox>
-      <Box Margin="4">Past 50 tiles</Box>
+      <Box Margin="4">30–50 tiles</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">Lightly degraded.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">Beyond 50 tiles</Box>
     </ColorBox>
     <ColorBox>
       <Box Margin="4">No signal.</Box>
     </ColorBox>
   </Table>
 
-  An AN/PRC can bridge direct frequency traffic if the same frequency is loaded in one of its slots.
+  A powered AN/PRC can bridge direct-frequency traffic when the same frequency is loaded into one of its slots.
 
-  Both users must be within [bold]50 tiles[/bold] of the radio.
+  Both headset users must be within [bold]50 tiles[/bold] of the radio.
 
-  ## Clearing Direct Frequency
+  ## Clearing a Direct Frequency
 
-  To stop using the tuned frequency:
+  To remove the tuned frequency:
 
   - Right-click the headset.
   - Select [bold]Clear Tuned Frequency[/bold].
 
-  Some headsets also have [bold]Reset to Default Frequency[/bold] if they shipped with a preset.
+  Headsets issued with a preset frequency may also provide [bold]Reset to Default Frequency[/bold].
 
-  ## Common Problems
+  ## Troubleshooting
 
   <Table Columns="2" MinForcedColumnWidth="120">
     <ColorBox Color="#263238">
       <Box Margin="4">[bold]Problem[/bold]</Box>
     </ColorBox>
     <ColorBox Color="#263238">
-      <Box Margin="4">[bold]Fix[/bold]</Box>
+      <Box Margin="4">[bold]Check[/bold]</Box>
     </ColorBox>
 
     <ColorBox>
-      <Box Margin="4">[bold]No frequency set[/bold] when using [color=#3FCF8E]:x[/color]</Box>
+      <Box Margin="4">[bold]No frequency set[/bold] when using [color=#a4885c]:x[/color]</Box>
     </ColorBox>
     <ColorBox>
-      <Box Margin="4">Tune the headset first.</Box>
-    </ColorBox>
-
-    <ColorBox>
-      <Box Margin="4">Only garble on a named net</Box>
-    </ColorBox>
-    <ColorBox>
-      <Box Margin="4">You may be at relay edge, near a jammer, or near a transmitter affected by jamming.</Box>
+      <Box Margin="4">Tune a direct frequency before transmitting.</Box>
     </ColorBox>
 
     <ColorBox>
-      <Box Margin="4">Pure static while using an AN/PRC</Box>
+      <Box Margin="4">Named-net traffic is garbled</Box>
     </ColorBox>
     <ColorBox>
-      <Box Margin="4">The AN/PRC may be missing the matching COMSEC fill.</Box>
-    </ColorBox>
-
-    <ColorBox>
-      <Box Margin="4">Cannot hear a named net</Box>
-    </ColorBox>
-    <ColorBox>
-      <Box Margin="4">Check that your headset has the key for that net.</Box>
+      <Box Margin="4">Check relay distance and nearby jamming.</Box>
     </ColorBox>
 
     <ColorBox>
-      <Box Margin="4">Nobody hears [color=#3FCF8E]:x[/color]</Box>
+      <Box Margin="4">AN/PRC traffic is received as static</Box>
     </ColorBox>
     <ColorBox>
-      <Box Margin="4">Check that both users are tuned to the exact same frequency and are in range.</Box>
+      <Box Margin="4">The transmitting or receiving radio may not have matching COMSEC fill.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">A named net cannot be heard</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">Examine the headset and confirm that it contains the matching net key.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">Direct-frequency traffic cannot be heard</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">Confirm that both users have entered the same frequency and are within range.</Box>
+    </ColorBox>
+
+    <ColorBox>
+      <Box Margin="4">No traffic is received on a combat net</Box>
+    </ColorBox>
+    <ColorBox>
+      <Box Margin="4">Confirm that a powered relay or fixed net anchor is available.</Box>
     </ColorBox>
   </Table>
 
-  Headsets do not use fill cards.
-
-  Fill cards are only for the AN/PRC.
+  Headsets do not use COMSEC fill cards. Fill cards are used only by the AN/PRC.
 </Document>

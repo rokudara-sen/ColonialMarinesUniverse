@@ -1,9 +1,7 @@
 <Document>
   # Communications Reference
 
-  This section covers ground force radio systems.
-
-  Good comms keep people alive. Report contacts, keep messages short, and stay on the net.
+  This section covers the radio systems used by ground forces.
 
   <Box>
     <GuideEntityEmbed Entity="ANPRC117GRadio" Caption="AN/PRC-117G"/>
@@ -12,51 +10,55 @@
 
   ## Guides
 
-  - [textlink="AN/PRC-117G Radio" link="AU14CommsANPRC"]
-  The RTO manpack radio. Covers setup, slots, operating modes, COMSEC fill, retrans stations, enemy intercepts and the net log.
+  ### [textlink="AN/PRC-117G Radio" link="AU14CommsANPRC"]
 
-  - [textlink="Field Headsets" link="AU14CommsHeadsets"]
-  The standard headset. Covers named nets, encryption keys, relay range, jamming and direct frequency tuning.
+  Operating instructions for the manpack radio, including net setup, operating modes, COMSEC fill, retransmission stations, interception, and the net log.
 
-  - [textlink="Voice Procedure" link="AU14CommsVoiceProcedure"]
-  How to talk on the net. Call format, prowords (OVER, WILCO, SAY AGAIN), worked examples for contact reports, fire missions and casevac.
+  ### [textlink="Field Headsets" link="AU14CommsHeadsets"]
 
-  - [textlink="Comms Quick Reference" link="AU14CommsQuickRef"]
-  One-page cheat sheet for chat prefixes, ranges, antennas, radio modes, transmit power, squelch and COMSEC actions.
+  Instructions for issued headsets, including named nets, relay coverage, jamming, and direct-frequency tuning.
 
-  ## Quick Pick
+  ### [textlink="Voice Procedure" link="AU14CommsVoiceProcedure"]
+
+  Standard radio message format, prowords, and worked examples for contact reports, fire missions, and casualty evacuation requests.
+
+  ### [textlink="Comms Quick Reference" link="AU14CommsQuickRef"]
+
+  A compact reference for chat prefixes, signal ranges, antennas, operating modes, transmit power, squelch, and COMSEC controls.
+
+  ## Find a Topic
 
   <Table Columns="2" MinForcedColumnWidth="120">
     <ColorBox Color="#263238">
-      <Box Margin="4">[bold]Need[/bold]</Box>
+      <Box Margin="4">[bold]Topic[/bold]</Box>
     </ColorBox>
     <ColorBox Color="#263238">
-      <Box Margin="4">[bold]Open[/bold]</Box>
+      <Box Margin="4">[bold]Guide[/bold]</Box>
     </ColorBox>
 
     <ColorBox>
-      <Box Margin="4">Set up or operate the RTO radio</Box>
+      <Box Margin="4">Set up or operate an AN/PRC</Box>
     </ColorBox>
     <ColorBox>
       <Box Margin="4">[textlink="AN/PRC-117G Radio" link="AU14CommsANPRC"]</Box>
     </ColorBox>
 
     <ColorBox>
-      <Box Margin="4">Use your issued headset</Box>
+      <Box Margin="4">Use an issued headset</Box>
     </ColorBox>
     <ColorBox>
       <Box Margin="4">[textlink="Field Headsets" link="AU14CommsHeadsets"]</Box>
     </ColorBox>
 
     <ColorBox>
-      <Box Margin="4">Sound like a professional on the net</Box>
+      <Box Margin="4">Learn radio calls and prowords</Box>
     </ColorBox>
     <ColorBox>
       <Box Margin="4">[textlink="Voice Procedure" link="AU14CommsVoiceProcedure"]</Box>
     </ColorBox>
 
     <ColorBox>
-      <Box Margin="4">Check a value during combat</Box>
+      <Box Margin="4">Check a control, range, or prefix</Box>
     </ColorBox>
     <ColorBox>
       <Box Margin="4">[textlink="Comms Quick Reference" link="AU14CommsQuickRef"]</Box>
