@@ -64,11 +64,21 @@ public sealed partial class ANPRCRadioSystem : EntitySystem
 
         SubscribeLocalEvent<ANPRCRadioComponent, GotEquippedEvent>(OnEquipped);
         SubscribeLocalEvent<ANPRCRadioComponent, GotUnequippedEvent>(OnUnequipped);
+        SubscribeLocalEvent<WearingANPRCComponent, ChatGetPrefixEvent>(OnChatGetPrefix);
+        SubscribeLocalEvent<WearingANPRCComponent, EntitySpokeEvent>(
+            OnSpeak,
+            before: [typeof(HeadsetSystem)]);
 
         // Must run after RankSystem so the callsign overrides the rank+name it
         // writes into the event; only active while the ANPRC is transmitting.
         // All subscriptions need identical ordering: the event bus requires all
         // of a system's subscriptions to one event to share the same constraints.
+        SubscribeLocalEvent<WearingANPRCComponent, TransformSpeakerNameEvent>(
+            OnWearerSpeakerName,
+            after: [typeof(RankSystem)]);
+        SubscribeLocalEvent<ANPRCRadioComponent, TransformSpeakerNameEvent>(
+            OnRadioSpeakerName,
+            after: [typeof(RankSystem)]);
 
 
         SubscribeLocalEvent<ANPRCRadioComponent, RadioReceiveEvent>(OnRadioReceive);
@@ -579,6 +589,5 @@ public sealed partial class ANPRCRadioSystem : EntitySystem
     }
 
     private void UpdateBuiState(Entity<ANPRCRadioComponent> ent) { }
-    private string GetOnAirName(Entity<ANPRCRadioComponent> radio) => Name(radio);
     private string GetHandsetOnAirName(EntityUid speaker, Entity<ANPRCRadioComponent> pack) => Name(pack);
 }
