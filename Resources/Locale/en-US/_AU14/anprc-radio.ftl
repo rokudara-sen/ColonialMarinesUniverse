@@ -79,4 +79,4 @@ anprc-handset-in-use = Someone is already using that handset.
 anprc-handset-hands-full = You need a free hand to take the handset.
 anprc-handset-cord = The handset cord yanks out of your hand as you move away.
 anprc-handset-radio-gone = The handset goes dead.
-anprc-handset-hint = :r transmits on the pack's active net while you hold the handset.
+anprc-handset-hint = Speaking transmits on the pack's active net while you hold the handset — whisper to stay off the air.

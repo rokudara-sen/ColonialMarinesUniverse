@@ -1,10 +1,12 @@
 using Content.Server.Chat.Systems;
+using Content.Server.Radio.Components;
 using Content.Shared._AU14.Callsigns;
 using Content.Shared._AU14.Radio;
 using Content.Shared._RMC14.Chat;
 using Content.Shared.Chat;
 using Content.Shared.Hands;
 using Content.Shared.Popups;
+using Content.Shared.Radio.Components;
 using Content.Shared.Verbs;
 using Robust.Shared.Containers;
 
@@ -41,7 +43,12 @@ public sealed partial class ANPRCRadioSystem
             {
                 toRelease ??= new List<(Entity<ANPRCHandsetUserComponent>, string)>();
                 toRelease.Add(((uid, handset), reason));
+                continue;
             }
+
+            // Track the pack's receive grants so the holder hears the net,
+            // following slot switches, scan and crypto changes.
+            SyncHandsetHearing((uid, handset));
         }
 
         if (toRelease != null)
@@ -103,15 +110,94 @@ public sealed partial class ANPRCRadioSystem
         user.PendingTransmit = false;
 
         radio.HandsetUser = args.User;
+
+        SyncHandsetHearing((args.User, user));
     }
 
     private void OnHandsetUnequippedHand(Entity<ANPRCHandsetComponent> ent, ref GotUnequippedHandEvent args)
     {
         if (TryComp(args.User, out ANPRCHandsetUserComponent? user) && user.Radio == ent.Comp.Radio)
+        {
+            RevokeHandsetHearing((args.User, user));
             RemComp<ANPRCHandsetUserComponent>(args.User);
+        }
 
         if (TryComp(ent.Comp.Radio, out ANPRCRadioComponent? radio) && radio.HandsetUser == args.User)
             radio.HandsetUser = null;
+    }
+
+    /// <summary>
+    /// Mirrors the pack's granted receive channels onto the holder, minus any
+    /// their own headset already delivers, so nothing is heard twice.
+    /// </summary>
+    private void SyncHandsetHearing(Entity<ANPRCHandsetUserComponent> user)
+    {
+        if (!TryComp(user.Comp.Radio, out ANPRCRadioComponent? radio))
+            return;
+
+        HashSet<string>? headsetChannels = null;
+
+        if (TryComp(user.Owner, out WearingHeadsetComponent? headset) &&
+            TryComp(headset.Headset, out EncryptionKeyHolderComponent? keys))
+        {
+            headsetChannels = keys.Channels;
+        }
+
+        var wanted = new HashSet<string>();
+
+        foreach (var channel in radio.GrantedChannels)
+        {
+            if (headsetChannels == null || !headsetChannels.Contains(channel))
+                wanted.Add(channel);
+        }
+
+        if (wanted.SetEquals(user.Comp.GrantedChannels))
+            return;
+
+        var active = EnsureComp<ActiveRadioComponent>(user.Owner);
+
+        if (!HasComp<IntrinsicRadioReceiverComponent>(user.Owner))
+        {
+            AddComp<IntrinsicRadioReceiverComponent>(user.Owner);
+            user.Comp.AddedIntrinsicReceiver = true;
+        }
+
+        foreach (var channel in user.Comp.GrantedChannels)
+        {
+            if (!wanted.Contains(channel))
+                active.Channels.Remove(channel);
+        }
+
+        foreach (var channel in wanted)
+        {
+            active.Channels.Add(channel);
+        }
+
+        user.Comp.GrantedChannels.Clear();
+        user.Comp.GrantedChannels.UnionWith(wanted);
+    }
+
+    private void RevokeHandsetHearing(Entity<ANPRCHandsetUserComponent> user)
+    {
+        if (user.Comp.GrantedChannels.Count > 0 &&
+            TryComp(user.Owner, out ActiveRadioComponent? active))
+        {
+            foreach (var channel in user.Comp.GrantedChannels)
+            {
+                active.Channels.Remove(channel);
+            }
+
+            if (active.Channels.Count == 0)
+                RemComp<ActiveRadioComponent>(user.Owner);
+        }
+
+        user.Comp.GrantedChannels.Clear();
+
+        if (user.Comp.AddedIntrinsicReceiver)
+        {
+            user.Comp.AddedIntrinsicReceiver = false;
+            RemComp<IntrinsicRadioReceiverComponent>(user.Owner);
+        }
     }
 
     private void SnapHandsetHome(
@@ -243,6 +329,8 @@ public sealed partial class ANPRCRadioSystem
 
     private void ReleaseHandset(Entity<ANPRCHandsetUserComponent> ent, string? messageKey = null)
     {
+        RevokeHandsetHearing(ent);
+
         if (TryComp(ent.Comp.Radio, out ANPRCRadioComponent? radio))
         {
             if (radio.HandsetUser == ent.Owner)
@@ -325,22 +413,57 @@ public sealed partial class ANPRCRadioSystem
 
     private void OnHandsetSpeak(Entity<ANPRCHandsetUserComponent> ent, ref EntitySpokeEvent args)
     {
-        if (!ent.Comp.PendingTransmit)
-            return;
-
-        ent.Comp.PendingTransmit = false;
-
-        if (args.Channel == null)
-            return;
-
         if (!TryComp(ent.Comp.Radio, out ANPRCRadioComponent? radio) ||
             !radio.Enabled ||
             (!radio.IsEquipped && !radio.Planted))
         {
+            ent.Comp.PendingTransmit = false;
             return;
         }
 
         var pack = new Entity<ANPRCRadioComponent>(ent.Comp.Radio, radio);
+
+        if (ent.Comp.PendingTransmit)
+        {
+            ent.Comp.PendingTransmit = false;
+
+            if (args.Channel == null)
+                return;
+
+            TransmitThroughPack(ent.Owner, pack, GetHandsetOnAirName(ent.Owner, pack), ref args);
+            return;
+        }
+
+        // Everything said aloud into a held handset goes out on the pack's
+        // active net; whispering is how you stay off the air. Failures are
+        // silent — mis-set packs must not spam the holder every sentence.
+        if (!_commsEnabled || args.Channel != null || args.ObfuscatedMessage != null)
+            return;
+
+        // Wearing your own pack keeps :r discipline (matches the prefix path).
+        if (HasComp<WearingANPRCComponent>(ent.Owner))
+            return;
+
+        if (!HandsetInReach(ent.Owner, ent.Comp.Radio) ||
+            !ValidateTransmit(pack, ent.Owner, quiet: true))
+        {
+            return;
+        }
+
+        if (radio.Mode == RadioMode.CipherText && string.IsNullOrEmpty(_crypto.GetFillFaction(ent.Comp.Radio)))
+            return;
+
+        if (!radio.FrequencyOverrides.ContainsKey(radio.ActiveSlot))
+        {
+            if (!radio.Presets.TryGetValue(radio.ActiveSlot, out var channelId) ||
+                string.IsNullOrEmpty(channelId.Id) ||
+                !_prototype.TryIndex(channelId, out var realChannel))
+            {
+                return;
+            }
+
+            args.Channel = realChannel;
+        }
 
         TransmitThroughPack(ent.Owner, pack, GetHandsetOnAirName(ent.Owner, pack), ref args);
     }
@@ -365,14 +488,9 @@ public sealed partial class ANPRCRadioSystem
         if (!TryComp(ent.Comp.Radio, out ANPRCRadioComponent? radio) || !radio.NameMaskActive)
             return;
 
-        // A handset user with their own callsign is masked by the callsign
-        // system; this covers speakers without one.
-        if (TryComp(ent.Owner, out AU14CallsignComponent? callsign) &&
-            !string.IsNullOrEmpty(callsign.Callsign))
-        {
-            return;
-        }
-
-        args.VoiceName = GetOnAirName((ent.Comp.Radio, radio));
+        // Mask unconditionally. Deferring holders with a personal callsign to
+        // the callsign system raced its tick flag: when this system's speak
+        // handler ran first, neither masked and the real name went on air.
+        args.VoiceName = GetHandsetOnAirName(ent.Owner, (ent.Comp.Radio, radio));
     }
 }
