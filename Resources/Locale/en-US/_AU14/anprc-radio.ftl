@@ -13,7 +13,6 @@ anprc-status-off = OFF
 
 anprc-slot-empty-display = NO CHANNEL
 
-chat-radio-anprc-sentinel = ANPRC
 
 anprc-radio-off = The radio makes no sound. It is switched off.
 anprc-not-authorized = The radio clicks. You are not trained to operate this equipment.

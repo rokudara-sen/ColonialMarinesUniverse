@@ -24,4 +24,3 @@ tunable-radio-verb-clear = Clear Tuned Frequency
 
 tunable-radio-cleared = Headset frequency cleared.
 
-chat-radio-tunable-sentinel = Direct Freq
