@@ -23,6 +23,7 @@ using Content.Shared.Hands;
 using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Interaction.Events;
 using Content.Shared.Inventory.Events;
+using Content.Shared.Mobs.Components;
 using Content.Shared.Paper;
 using Content.Shared.Item;
 using Content.Shared.PowerCell;
@@ -70,6 +71,7 @@ public sealed partial class ANPRCRadioSystem : EntitySystem
     [Dependency] private IRobustRandom _random = default!;
     [Dependency] private SharedDoAfterSystem _doAfter = default!;
     [Dependency] private SharedContainerSystem _container = default!;
+    [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private SharedHandsSystem _hands = default!;
     [Dependency] private IConfigurationManager _config = default!;
     [Dependency] private INetManager _netManager = default!;
@@ -119,6 +121,13 @@ public sealed partial class ANPRCRadioSystem : EntitySystem
         SubscribeLocalEvent<ANPRCRadioComponent, GetVerbsEvent<AlternativeVerb>>(OnGetAltVerbs);
         SubscribeLocalEvent<WearingANPRCComponent, GetVerbsEvent<AlternativeVerb>>(OnWearerGetAltVerbs);
 
+        // the panel is built entirely out of the state the server pushes, and UpdateBuiState
+        // refuses to push to a closed UI - so a panel opened on a set nobody had opened yet
+        // had no state at all to build from, and every control came up at its default, which
+        // for a button is enabled. That is the "it says it is on until you cycle the power"
+        // bug: cycling it was simply the first thing that pushed a state
+        SubscribeLocalEvent<ANPRCRadioComponent, BoundUIOpenedEvent>(OnUiOpened);
+
         Subs.BuiEvents<ANPRCRadioComponent>(ANPRCRadioUI.Key, subs =>
         {
             subs.Event<ANPRCSelectSlotMsg>(OnSelectSlot);
@@ -128,6 +137,7 @@ public sealed partial class ANPRCRadioSystem : EntitySystem
             subs.Event<ANPRCSetScanMsg>(OnSetScan);
             subs.Event<ANPRCSetTxPowerMsg>(OnSetTxPower);
             subs.Event<ANPRCSetSquelchMsg>(OnSetSquelch);
+            subs.Event<ANPRCSetVolumeMsg>(OnSetVolume);
             subs.Event<ANPRCSetCallsignMsg>(OnSetCallsign);
             subs.Event<ANPRCAddSlotMsg>(OnAddSlot);
             subs.Event<ANPRCDeleteSlotMsg>(OnDeleteSlot);
@@ -187,21 +197,7 @@ public sealed partial class ANPRCRadioSystem : EntitySystem
 
         // the wearer's headset or their own intrinsic receiver (a held handset)
         // already delivers this channel, the pack must not double it up
-        var covered = false;
-
-        if (TryComp(wearer, out WearingHeadsetComponent? wearingHeadset) &&
-            TryComp(wearingHeadset.Headset, out EncryptionKeyHolderComponent? keys))
-        {
-            covered = keys.Channels.Contains(args.Channel.ID);
-        }
-
-        if (!covered &&
-            HasComp<IntrinsicRadioReceiverComponent>(wearer) &&
-            TryComp(wearer, out ActiveRadioComponent? wearerRadio) &&
-            wearerRadio.Channels.Contains(args.Channel.ID))
-        {
-            covered = true;
-        }
+        var covered = AlreadyCarries(wearer, args.Channel.ID, ent.Owner);
 
         if (args.MessageSource == wearer)
         {
@@ -235,30 +231,23 @@ public sealed partial class ANPRCRadioSystem : EntitySystem
                 intercepted,
                 args.Language);
 
+            radio.LastReceive = _timing.CurTime;
+
             UpdateBuiState(ent);
 
-            if (!covered && TryComp(wearer, out ActorComponent? actor))
+            var sender = GetSenderDisplayName(args.MessageSource);
+
+            // a muted speaker is genuinely mute. the log still fills - the set heard it -
+            // but nothing comes out of the box, and the handset is the way back to it
+            if (!covered && radio.Volume > 0 && TryComp(wearer, out ActorComponent? actor))
             {
-                // out of the speaker it is one person's ear, so this one does get the
-                // language pass, against them
-                heard = _language.ObfuscateMessageForListener(
-                    wearer,
-                    heard,
-                    args.Language,
-                    args.MessageSource);
-
-                var senderName = FormattedMessage.EscapeText(GetSenderDisplayName(args.MessageSource));
-                var message = FormattedMessage.EscapeText(heard);
-                var wrapped = $"[color=#FF6B6B]{senderName}: {message}[/color]";
-
-                _chatManager.ChatMessageToOne(
-                    ChatChannel.Radio,
-                    heard,
-                    wrapped,
-                    args.MessageSource,
-                    false,
-                    actor.PlayerSession.Channel);
+                SpeakToListener(wearer, actor, sender, heard, args.Language, args.MessageSource);
             }
+
+            // wound up past LOW the speaker is loud enough to be somebody else's
+            // problem, and whoever is standing at the set hears the net too
+            if (radio.Volume > ANPRCRadioComponent.DefaultVolume)
+                BleedFromSpeaker(ent, wearer, args.Channel, sender, heard, args.Language, args.MessageSource);
         }
 
         if (!radio.ScanEnabled)
@@ -285,6 +274,119 @@ public sealed partial class ANPRCRadioSystem : EntitySystem
 
             return;
         }
+    }
+
+    /// <summary>
+    ///     Whether this listener is already being told this net by their own gear, and so must not
+    ///     be told it again by a pack's speaker. <paramref name="exceptPack"/> is the set doing the
+    ///     speaking, which never counts as its own wearer's second source.
+    /// </summary>
+    private bool AlreadyCarries(EntityUid listener, string channel, EntityUid exceptPack)
+    {
+        if (TryComp(listener, out WearingHeadsetComponent? wearingHeadset) &&
+            TryComp(wearingHeadset.Headset, out EncryptionKeyHolderComponent? keys) &&
+            keys.Channels.Contains(channel))
+        {
+            return true;
+        }
+
+        // an intrinsic receiver: a held handset, a synth, an aghost
+        if (HasComp<IntrinsicRadioReceiverComponent>(listener) &&
+            TryComp(listener, out ActiveRadioComponent? own) &&
+            own.Channels.Contains(channel))
+        {
+            return true;
+        }
+
+        // their own manpack. its receiver lives on the pack rather than on them, so this is the
+        // only way to notice that their own speaker is already saying it
+        return TryComp(listener, out WearingANPRCComponent? wearing) &&
+               wearing.Radio != exceptPack &&
+               TryComp(wearing.Radio, out ANPRCRadioComponent? pack) &&
+               pack.Volume > 0 &&
+               pack.GrantedChannels.Contains(channel);
+    }
+
+    // one received line onto one person's screen, obfuscated for their ear. the pack's
+    // speaker and its bleed to bystanders both land here so a listener is treated the
+    // same whether they are wearing the set or standing next to it
+    private void SpeakToListener(
+        EntityUid listener,
+        ActorComponent actor,
+        string sender,
+        string message,
+        ProtoId<LanguagePrototype> language,
+        EntityUid source)
+    {
+        var heard = _language.ObfuscateMessageForListener(listener, message, language, source);
+
+        var senderName = FormattedMessage.EscapeText(sender);
+        var body = FormattedMessage.EscapeText(heard);
+        var wrapped = $"[color=#FF6B6B]{senderName}: {body}[/color]";
+
+        _chatManager.ChatMessageToOne(
+            ChatChannel.Radio,
+            heard,
+            wrapped,
+            source,
+            false,
+            actor.PlayerSession.Channel);
+    }
+
+    // the set is audible off its own speaker. this is also the only way an unattended
+    // planted station is readable at all: it has no wearer to talk to, so anyone who
+    // walks up to a station left running loud hears whatever it is sitting on
+    private void BleedFromSpeaker(
+        Entity<ANPRCRadioComponent> ent,
+        EntityUid wearer,
+        RadioChannelPrototype channel,
+        string sender,
+        string message,
+        ProtoId<LanguagePrototype> language,
+        EntityUid source)
+    {
+        foreach (var listener in GetSpeakerAudience(ent, wearer, channel.ID, source))
+        {
+            if (TryComp(listener, out ActorComponent? actor))
+                SpeakToListener(listener, actor, sender, message, language, source);
+        }
+    }
+
+    /// <summary>
+    ///     Who is close enough to hear the set's own speaker, given where the volume is wound.
+    ///     Separate from the sending so earshot is one rule rather than one buried in a loop:
+    ///     anybody standing near a loud set hears the net unless their own gear already carries it.
+    /// </summary>
+    public List<EntityUid> GetSpeakerAudience(
+        Entity<ANPRCRadioComponent> ent,
+        EntityUid wearer,
+        string channel,
+        EntityUid source)
+    {
+        var listeners = new List<EntityUid>();
+        var range = ent.Comp.SpeakerBleedRange;
+
+        if (range <= 0f)
+            return listeners;
+
+        // a worn pack's own coordinates are relative to whoever is wearing it, so the search has
+        // to start from a map position rather than from the pack's parent frame
+        var origin = _transform.GetMapCoordinates(ent.Owner);
+
+        foreach (var listener in _lookup.GetEntitiesInRange<MobStateComponent>(origin, range))
+        {
+            if (listener.Owner == wearer || listener.Owner == source)
+                continue;
+
+            // their own gear already carries this net - a headset, a handset, or a manpack of
+            // their own - so the speaker would only be saying it to them twice
+            if (AlreadyCarries(listener.Owner, channel, ent.Owner))
+                continue;
+
+            listeners.Add(listener.Owner);
+        }
+
+        return listeners;
     }
 
     private void OnEquipped(Entity<ANPRCRadioComponent> ent, ref GotEquippedEvent args)
@@ -703,6 +805,8 @@ public sealed partial class ANPRCRadioSystem : EntitySystem
             args.Message,
             intercepted,
             args.Language);
+
+        ent.Comp.LastReceive = _timing.CurTime;
 
         UpdateBuiState(ent);
     }

@@ -348,13 +348,19 @@
     - radioOpforMILP
 
 # field-built antenna mast, raised from metal by engineering-trained personnel.
-# relays both sides' combat nets: a mast is a mast, whoever stands next to it
+# relays both sides' combat nets: a mast is a mast, whoever stands next to it.
 - type: entity
   parent: AU14CommsMastBase
   id: AU14CommsMastField
   name: field antenna mast
   suffix: Field-Built, Both Sides
   components:
+  - type: Construction
+    graph: AU14CommsMastGraph
+    node: mast
+    defaultTarget: mast
+  - type: AU14MastAssembly
+    examineHint: false
   - type: AU14NetSpliceTarget
     carriers: 2
     probes: 24

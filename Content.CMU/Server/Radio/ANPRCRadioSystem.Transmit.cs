@@ -283,6 +283,8 @@ public sealed partial class ANPRCRadioSystem
                 $"{TunableFrequencySystem.FormatFreq(frequency)} MHz",
                 outMessage);
 
+            radio.LastTransmit = _timing.CurTime;
+
             UpdateBuiState(pack);
             return;
         }
@@ -371,6 +373,8 @@ public sealed partial class ANPRCRadioSystem
             senderName,
             FormatLogChannel(radio, channel),
             outMessage);
+
+        radio.LastTransmit = _timing.CurTime;
 
         UpdateBuiState(pack);
     }

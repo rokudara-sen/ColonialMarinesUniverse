@@ -1,11 +1,273 @@
 # field-built comms structures, raised from metal by engineering-trained personnel
 - type: rmcConstruction
   id: AU14CommsMastFieldBuild
-  name: field antenna mast
+  name: antenna mast parts
   prototype: AU14CommsMastField
   noRotate: true
-  doAfterTime: 8
-  doAfterTimeMin: 4
-  materialCost: 10
   skill: RMCSkillEngineer
   requiredSkillLevel: 2
+  listed:
+  - AU14CommsMastFootingBuild
+  - AU14MastAntennaHeadBuild
+
+- type: rmcConstruction
+  id: AU14CommsMastFootingBuild
+  name: mast footing
+  prototype: AU14CommsMastFooting
+  noRotate: true
+  doAfterTime: 30
+  doAfterTimeMin: 20
+  materialCost: 40
+  skill: RMCSkillEngineer
+  requiredSkillLevel: 2
+
+- type: rmcConstruction
+  id: AU14MastAntennaHeadBuild
+  name: mast antenna head
+  prototype: AU14MastAntennaHead
+  noRotate: true
+  doAfterTime: 25
+  doAfterTimeMin: 15
+  materialCost: 35
+  skill: RMCSkillEngineer
+  requiredSkillLevel: 2
+  ignoreBuildRestrictions: true
+  restrictedCollisionGroup: null
+
+# --- the crated antenna head ------------------------------------------------------------
+- type: entity
+  parent: BaseItem
+  id: AU14MastAntennaHead
+  name: mast antenna head
+  description: >-
+    A high-gain antenna head with its feedhorn, balun and lightning arrestor already
+    fitted, crated for carriage. It takes both arms and will not go in a bag - somebody
+    has to walk it out to the mast.
+  components:
+  - type: Sprite
+    sprite: CMU14/Objects/Radio/anprc117g.rsi
+    state: antenna_m
+  - type: Item
+    size: Huge
+  - type: Tag
+    tags:
+    - AU14MastAntennaHead
+
+# --- assembly graph ---------------------------------------------------------------------
+- type: constructionGraph
+  id: AU14CommsMastGraph
+  start: start
+  graph:
+  - node: start
+    actions:
+    - !type:DeleteEntity
+
+  - node: footing
+    entity: AU14CommsMastFooting
+    edges:
+    - to: braced
+      steps:
+      - tool: Anchoring
+        doAfter: 15
+    - to: start
+      completed:
+      - !type:SpawnPrototype
+        prototype: CMSheetMetal1
+        amount: 25
+      - !type:DeleteEntity
+      steps:
+      - tool: Prying
+        doAfter: 10
+
+  - node: braced
+    entity: AU14CommsMastFooting
+    edges:
+    - to: lattice
+      steps:
+      - material: CMRodMetal
+        amount: 30
+        doAfter: 35
+    - to: start
+      completed:
+      - !type:SpawnPrototype
+        prototype: CMSheetMetal1
+        amount: 25
+      - !type:DeleteEntity
+      steps:
+      - tool: Prying
+        doAfter: 10
+
+  - node: lattice
+    entity: AU14CommsMastLattice
+    edges:
+    - to: welded
+      steps:
+      - tool: Welding
+        doAfter: 25
+        fuel: 15
+    - to: braced
+      completed:
+      - !type:SpawnPrototype
+        prototype: CMRodMetal1
+        amount: 20
+      steps:
+      - tool: Prying
+        doAfter: 15
+
+  - node: welded
+    entity: AU14CommsMastLattice
+    edges:
+    - to: guyed
+      steps:
+      - material: RMCCable
+        amount: 15
+        doAfter: 25
+
+  - node: guyed
+    entity: AU14CommsMastLattice
+    edges:
+    - to: head
+      steps:
+      - tag: AU14MastAntennaHead
+        name: "mast antenna head"
+        icon:
+          sprite: CMU14/Objects/Radio/anprc117g.rsi
+          state: antenna_m
+        doAfter: 20
+
+  - node: head
+    entity: AU14CommsMastRigged
+    edges:
+    - to: mast
+      steps:
+      - material: CMPlasteel
+        amount: 10
+        doAfter: 20
+      - tool: Pulsing
+        doAfter: 25
+
+  - node: mast
+    entity: AU14CommsMastField
+    edges:
+    - to: start
+      completed:
+      - !type:SpawnPrototype
+        prototype: CMSheetMetal1
+        amount: 30
+      - !type:SpawnPrototype
+        prototype: CMRodMetal1
+        amount: 15
+      - !type:DeleteEntity
+      steps:
+      - tool: Cutting
+        doAfter: 15
+      - tool: Anchoring
+        doAfter: 25
+
+# --- half-built stages ------------------------------------------------------------------
+- type: entity
+  abstract: true
+  parent: BaseStructure
+  id: AU14CommsMastStageBase
+  components:
+  - type: Transform
+    anchored: true
+    noRot: true
+  - type: Clickable
+  - type: InteractionOutline
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.49,-0.49,0.49,0.49"
+        density: 200
+        mask:
+        - MobLayer
+  - type: Damageable
+    damageModifierSet: null
+  - type: Injurable
+    damageContainer: Inorganic
+  - type: MaxDamage
+    max: 150
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 140
+      behaviors:
+      - !type:PlaySoundBehavior
+        sound:
+          collection: MetalBreak
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+  - type: AU14MastAssembly
+
+- type: entity
+  parent: AU14CommsMastStageBase
+  id: AU14CommsMastFooting
+  name: mast footing
+  description: >-
+    A staked baseplate with its earth mat pegged out around it. Nothing on it yet -
+    the sections have to go up before this is any use to anyone.
+  suffix: Field-Built, Stage 1
+  components:
+  - type: Sprite
+    sprite: _RMC14/Structures/Walls/girder.rsi
+    state: girder
+  - type: Construction
+    graph: AU14CommsMastGraph
+    node: footing
+    defaultTarget: mast
+
+- type: entity
+  parent: AU14CommsMastStageBase
+  id: AU14CommsMastLattice
+  name: half-raised antenna mast
+  description: >-
+    Rod sections bolted up into a lattice, leaning on its own weight. Until the joints
+    are welded and the guys are on it, the first strong gust owns it.
+  suffix: Field-Built, Stage 2
+  components:
+  - type: Sprite
+    sprite: _RMC14/Structures/communications_tower_alt.rsi
+    offset: 0, 1
+    state: comm_tower_destroyed
+  - type: Construction
+    graph: AU14CommsMastGraph
+    node: lattice
+    defaultTarget: mast
+
+- type: entity
+  parent: AU14CommsMastStageBase
+  id: AU14CommsMastRigged
+  name: untuned antenna mast
+  description: >-
+    Raised, guyed and topped with its antenna head. The feed is still open and nothing
+    is tuned, so it carries no traffic at all yet.
+  suffix: Field-Built, Stage 3
+  components:
+  - type: Sprite
+    sprite: _RMC14/Structures/communications_tower_alt.rsi
+    offset: 0, 1
+    state: comm_tower_off
+    color: "#8d9096"
+  - type: MaxDamage
+    max: 300
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 280
+      behaviors:
+      - !type:PlaySoundBehavior
+        sound:
+          collection: MetalBreak
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+  - type: Construction
+    graph: AU14CommsMastGraph
+    node: head
+    defaultTarget: mast

@@ -19,8 +19,15 @@ public sealed partial class ANPRCRadioSystem
     // cord length in tiles
     private const float HandsetRange = 2.5f;
 
+    // how often an open panel is refreshed with the readings nothing else pushes
+    private const float PanelRefreshInterval = 1f;
+
+    private float _panelRefreshAccumulator;
+
     public override void Update(float frameTime)
     {
+        RefreshOpenPanels(frameTime);
+
         List<(Entity<ANPRCHandsetUserComponent> User, string Reason)>? toRelease = null;
 
         var query = EntityQueryEnumerator<ANPRCHandsetUserComponent>();

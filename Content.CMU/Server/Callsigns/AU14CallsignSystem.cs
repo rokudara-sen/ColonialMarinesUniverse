@@ -7,6 +7,7 @@ using Content.Shared.CMU14.Callsigns;
 using Content.Shared.CMU14.Radio;
 using Content.Shared.CMU14.Threats.Mobs.CLF;
 using Content.Shared._RMC14.Marines;
+using Content.Shared._RMC14.Roles;
 using Content.Shared._RMC14.Marines.Squads;
 using Content.Shared._RMC14.Tracker.SquadLeader;
 using Content.Shared.Chat;
@@ -67,6 +68,7 @@ public sealed partial class AU14CallsignSystem : EntitySystem
         Subs.CVar(_config, AU14CCVars.NewCommsSystem, OnCommsToggled, true);
 
         SubscribeLocalEvent<PlayerSpawnCompleteEvent>(OnPlayerSpawnComplete);
+        SubscribeLocalEvent<PlayerAttachedEvent>(OnPlayerAttached);
         SubscribeLocalEvent<SquadMemberAddedEvent>(OnSquadMemberAdded);
         SubscribeLocalEvent<FireteamMemberUpdatedEvent>(OnFireteamMemberUpdated);
         SubscribeLocalEvent<RoundRestartCleanupEvent>(OnRoundRestart);
@@ -197,6 +199,54 @@ public sealed partial class AU14CallsignSystem : EntitySystem
         callsign.Faction = faction;
 
         Assign(mob, callsign);
+    }
+
+    /// <summary>
+    ///     Somebody has taken over a body that was already standing there. Reinforcements called
+    ///     in from a tech tree console, survivors, and every other ghost role spawn long before a
+    ///     player arrives: the faction component lands at spawn, so the startup hooks fire while
+    ///     the body is still empty and skip it. Nothing afterwards issued a callsign, so a
+    ///     reinforcement transmitted under their own name and never appeared in the directory.
+    ///
+    ///     Assigning here catches all of them at the one moment that is common to every path - a
+    ///     session actually taking the body - and it is idempotent, so a player reconnecting or
+    ///     being moved between bodies keeps the callsign they already hold.
+    /// </summary>
+    private void OnPlayerAttached(PlayerAttachedEvent ev)
+    {
+        if (!_commsEnabled)
+            return;
+
+        var faction = HasComp<CLFMemberComponent>(ev.Entity)
+            ? "clf"
+            : CompOrNull<MarineComponent>(ev.Entity)?.Faction;
+
+        if (faction == null || !AU14Callsigns.Factions.Contains(faction))
+            return;
+
+        // a body that already carries a callsign is left alone, including its job title: this
+        // fires on every attach, and re-deriving the title would undo an admin's edits
+        if (TryComp(ev.Entity, out AU14CallsignComponent? existing) &&
+            !string.IsNullOrEmpty(existing.Callsign))
+        {
+            return;
+        }
+
+        var callsign = EnsureComp<AU14CallsignComponent>(ev.Entity);
+        callsign.Faction = faction;
+
+        // ghost roles have no PlayerSpawnCompleteEvent to carry a job id, but the ghost role
+        // pipeline stamps the job it was spawned as onto the body, so the directory can still
+        // show what the station is rather than leaving the column blank
+        if (string.IsNullOrEmpty(callsign.JobTitle) &&
+            TryComp(ev.Entity, out OriginalRoleComponent? role) &&
+            role.Job is { } job &&
+            _prototype.TryIndex(job, out var jobProto))
+        {
+            callsign.JobTitle = jobProto.LocalizedName;
+        }
+
+        Assign(ev.Entity, callsign);
     }
 
     private void OnPlayerSpawnComplete(PlayerSpawnCompleteEvent ev)

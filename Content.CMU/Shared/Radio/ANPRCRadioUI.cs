@@ -70,6 +70,20 @@ public static class RadioTxPowerExtensions
     };
 }
 
+// speaker detents. MUTE is a dead speaker, LOW reaches the operator only, and every
+// step above that is how many tiles of bystander the set is audible to
+public static class ANPRCVolume
+{
+    public static string Label(int volume) => volume switch
+    {
+        <= 0 => "MUTE",
+        1 => "LOW",
+        2 => "MED",
+        3 => "HIGH",
+        _ => "MAX",
+    };
+}
+
 [Serializable, NetSerializable]
 public sealed class ANPRCNetLogEntry(
     float timestamp,
@@ -186,6 +200,12 @@ public sealed class ANPRCSetSquelchMsg(int level) : BoundUserInterfaceMessage
 }
 
 [Serializable, NetSerializable]
+public sealed class ANPRCSetVolumeMsg(int level) : BoundUserInterfaceMessage
+{
+    public readonly int Level = level;
+}
+
+[Serializable, NetSerializable]
 public sealed class ANPRCSetCallsignMsg(string callsign) : BoundUserInterfaceMessage
 {
     public readonly string Callsign = callsign;
@@ -267,9 +287,35 @@ public sealed class ANPRCRadioState(
     Dictionary<string, RadioFrequency> channelFrequencies,
     bool sweepEnabled,
     RadioFrequency sweepPosition,
-    List<ANPRCSweepContact> sweepContacts)
+    List<ANPRCSweepContact> sweepContacts,
+    int volume,
+    bool handsetOut,
+    TimeSpan lastTransmit,
+    TimeSpan lastReceive,
+    float linkQuality,
+    bool hasDirectory)
     : BoundUserInterfaceState
 {
+    // the pack carries the faction's net directory. without it the panel's directory key
+    // would open nothing at all, so the panel greys it out rather than swallowing the press
+    public readonly bool HasDirectory = hasDirectory;
+
+    public readonly int Volume = volume;
+
+    // how good the set's link to the nearest anchor carrying the working net is, 1 on top of
+    // it down to 0 at the fringe. negative where the question does not apply: no net, a raw
+    // frequency that no anchor gates, or a set that is off
+    public readonly float LinkQuality = linkQuality;
+
+    // the handset is off its hook, so the set is being worked as a field phone and
+    // whatever the speaker is doing is not the whole picture
+    public readonly bool HandsetOut = handsetOut;
+
+    // server clock stamps, compared against the client's own synced clock to decide
+    // how long the TX and RX lamps stay lit
+    public readonly TimeSpan LastTransmit = lastTransmit;
+    public readonly TimeSpan LastReceive = lastReceive;
+
     public readonly bool SweepEnabled = sweepEnabled;
     public readonly RadioFrequency SweepPosition = sweepPosition;
     public readonly List<ANPRCSweepContact> SweepContacts = sweepContacts;

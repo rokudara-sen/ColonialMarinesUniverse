@@ -54,6 +54,38 @@ public sealed partial class ANPRCRadioComponent : Component
 
     public const int MaxSquelchLevel = 4;
 
+    // speaker volume. MUTE kills the pack's own speaker outright - the set is then only
+    // readable through the handset, which is how an operator works close to the enemy.
+    // above LOW the speaker carries far enough that anyone standing near the set hears
+    // the net as well, so cranking it up is a real decision and not a slider
+    [DataField, AutoNetworkedField]
+    public int Volume = DefaultVolume;
+
+    public const int MaxVolume = 4;
+
+    public const int DefaultVolume = 1;
+
+    // tiles of speaker bleed added per detent above LOW
+    [DataField]
+    public float SpeakerBleedPerStep = 2f;
+
+    // how far the speaker carries to bystanders. LOW and MUTE never leave the operator
+    public float SpeakerBleedRange =>
+        Volume <= DefaultVolume ? 0f : (Volume - DefaultVolume) * SpeakerBleedPerStep;
+
+    // when the set last keyed up and last took traffic, so the panel can light its TX
+    // and RX lamps off what the radio actually did rather than off a UI guess
+    public TimeSpan LastTransmit;
+
+    public TimeSpan LastReceive;
+
+    // what an open panel was last told about the two readings that drift without anybody
+    // touching the set. the refresh tick compares against these so it only spends a state
+    // push - which carries the whole net log - when one of them has actually moved
+    public float PanelLinkQuality = float.NaN;
+
+    public float PanelBatteryFraction = float.NaN;
+
     [DataField, AutoNetworkedField]
     public string Callsign = string.Empty;
 

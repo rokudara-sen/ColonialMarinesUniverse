@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Text;
+using Content.Shared.CMU14.Callsigns;
 using Content.Shared.CMU14.Radio;
 using Content.Shared.Chat;
 using Content.Shared.Paper;
@@ -59,6 +60,19 @@ public sealed partial class ANPRCRadioSystem
                 Act = () => StartPlant(ent, user)
             });
         }
+    }
+
+    /// <summary>
+    ///     Push the set's state the moment a panel opens on it. Every other push happens because
+    ///     a setting changed, which means the first panel of the round on a given set would
+    ///     otherwise be drawn from no state whatsoever.
+    /// </summary>
+    private void OnUiOpened(Entity<ANPRCRadioComponent> ent, ref BoundUIOpenedEvent args)
+    {
+        if (!Equals(args.UiKey, ANPRCRadioUI.Key))
+            return;
+
+        UpdateBuiState(ent);
     }
 
     private void OnSelectSlot(Entity<ANPRCRadioComponent> ent, ref ANPRCSelectSlotMsg args)
@@ -511,6 +525,53 @@ public sealed partial class ANPRCRadioSystem
         UpdateBuiState(ent);
     }
 
+    private void OnSetVolume(Entity<ANPRCRadioComponent> ent, ref ANPRCSetVolumeMsg args)
+    {
+        var level = Math.Clamp(args.Level, 0, ANPRCRadioComponent.MaxVolume);
+
+        if (level == ent.Comp.Volume)
+            return;
+
+        var previous = ent.Comp.Volume;
+
+        ent.Comp.Volume = level;
+        Dirty(ent);
+
+        UpdateBuiState(ent);
+
+        // the panel already prints every detent, so chat only speaks up where the setting
+        // changes who can hear the radio. those two crossings are worth being certain of
+        // before walking into somebody's kill zone; the ones in between are not
+        var loud = level > ANPRCRadioComponent.DefaultVolume;
+        var wasLoud = previous > ANPRCRadioComponent.DefaultVolume;
+
+        if (level <= 0)
+        {
+            _cmChat.ChatMessageToOne(Loc.GetString("anprc-volume-muted"), args.Actor);
+        }
+        else if (previous <= 0)
+        {
+            _cmChat.ChatMessageToOne(
+                Loc.GetString("anprc-volume-restored", ("level", ANPRCVolume.Label(level))),
+                args.Actor);
+        }
+        else if (loud && !wasLoud)
+        {
+            _cmChat.ChatMessageToOne(
+                Loc.GetString(
+                    "anprc-volume-loud",
+                    ("level", ANPRCVolume.Label(level)),
+                    ("range", (int) ent.Comp.SpeakerBleedRange)),
+                args.Actor);
+        }
+        else if (!loud && wasLoud)
+        {
+            _cmChat.ChatMessageToOne(
+                Loc.GetString("anprc-volume-quiet", ("level", ANPRCVolume.Label(level))),
+                args.Actor);
+        }
+    }
+
     private void OnSetCallsign(Entity<ANPRCRadioComponent> ent, ref ANPRCSetCallsignMsg args)
     {
         ent.Comp.Callsign = Sanitize(args.Callsign, ANPRCRadioComponent.MaxCallsignLength);
@@ -519,15 +580,76 @@ public sealed partial class ANPRCRadioSystem
         UpdateBuiState(ent);
     }
 
+    // the panel shows things that change without anybody touching the radio - the link to the
+    // anchor as its wearer walks, the battery as it drains. those would otherwise only refresh
+    // when a setting changed or traffic arrived, and an operator would read a stale bar graph
+    private void RefreshOpenPanels(float frameTime)
+    {
+        _panelRefreshAccumulator += frameTime;
+
+        if (_panelRefreshAccumulator < PanelRefreshInterval)
+            return;
+
+        _panelRefreshAccumulator = 0f;
+
+        var query = EntityQueryEnumerator<ANPRCRadioComponent>();
+
+        while (query.MoveNext(out var uid, out var radio))
+        {
+            if (!_ui.IsUiOpen(uid, ANPRCRadioUI.Key))
+                continue;
+
+            var ent = new Entity<ANPRCRadioComponent>(uid, radio);
+
+            if (!Drifted(radio.PanelLinkQuality, GetLinkQuality(ent)) &&
+                !Drifted(radio.PanelBatteryFraction, GetBatteryFraction(uid, out _)))
+            {
+                continue;
+            }
+
+            UpdateBuiState(ent);
+        }
+    }
+
+    // NaN is the never-sent case, and comparing against it is false either way, so a panel that
+    // has just opened always gets its first reading
+    private static bool Drifted(float sent, float current) => !(MathF.Abs(sent - current) < 0.02f);
+
+    private float GetBatteryFraction(EntityUid uid, out bool hasBattery)
+    {
+        hasBattery = _powerCell.TryGetBatteryFromSlot(uid, out var battery);
+
+        return hasBattery ? _battery.GetChargeLevel(battery!.Value.AsNullable()) : 0f;
+    }
+
+    /// <summary>
+    ///     Coverage on the net the set is working, as the range system actually gates traffic.
+    ///     Negative when the question has no answer: the set is down, searching, on nothing, or on
+    ///     a raw frequency that no anchor stands behind.
+    /// </summary>
+    private float GetLinkQuality(Entity<ANPRCRadioComponent> ent)
+    {
+        if (!ent.Comp.Enabled || (!ent.Comp.IsEquipped && !ent.Comp.Planted) || ent.Comp.SweepEnabled)
+            return -1f;
+
+        if (!ent.Comp.Presets.TryGetValue(ent.Comp.ActiveSlot, out var channel))
+            return -1f;
+
+        _range.GetRangeTier(ent.Owner, channel.Id, out var quality);
+
+        return quality;
+    }
+
     private void UpdateBuiState(Entity<ANPRCRadioComponent> ent)
     {
         if (!_ui.IsUiOpen(ent.Owner, ANPRCRadioUI.Key))
             return;
 
-        var hasBattery = _powerCell.TryGetBatteryFromSlot(ent.Owner, out var battery);
-        var batteryFraction = hasBattery
-            ? _battery.GetChargeLevel(battery!.Value.AsNullable())
-            : 0f;
+        var batteryFraction = GetBatteryFraction(ent.Owner, out var hasBattery);
+        var linkQuality = GetLinkQuality(ent);
+
+        ent.Comp.PanelLinkQuality = linkQuality;
+        ent.Comp.PanelBatteryFraction = batteryFraction;
 
         var antennaLabel = "NONE";
 
@@ -567,7 +689,13 @@ public sealed partial class ANPRCRadioSystem
                 BuildChannelFrequencies(ent.Comp),
                 ent.Comp.SweepEnabled,
                 ent.Comp.SweepPosition,
-                BuildSweepContacts(ent.Comp)));
+                BuildSweepContacts(ent.Comp),
+                ent.Comp.Volume,
+                ent.Comp.HandsetUser != null,
+                ent.Comp.LastTransmit,
+                ent.Comp.LastReceive,
+                linkQuality,
+                HasComp<AU14CallsignConsoleComponent>(ent.Owner)));
     }
 
     // the client only ever learns the operator's own nets, the unfactioned ones, and
