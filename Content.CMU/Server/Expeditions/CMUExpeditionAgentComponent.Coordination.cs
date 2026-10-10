@@ -10,6 +10,8 @@ public sealed partial class CMUExpeditionAgentComponent
     public EntityUid? CoveringFor;
     public TimeSpan CoveringUntil;
     public TimeSpan ManeuverUntil;
+    // when the covering shooter stopped being ready, for the short grace on a maneuver
+    public TimeSpan? SupportLapseSince;
     public string SquadDecision = "idle";
     public EntityCoordinates? ContactDestination;
     public EntityCoordinates? FightingPosition;
